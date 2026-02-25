@@ -1,0 +1,54 @@
+[changelog]
+header = """
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+"""
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+            {% if commit.breaking %}[**breaking**] {% endif %}\
+            {{ commit.message | upper_first }}\
+    {% endfor %}
+{% endfor %}
+"""
+postprocessors = []
+render_always = true
+trim = true
+
+[git]
+commit_parsers = [
+    { message = "^Initial [Cc]ommit$", skip = true },
+    { message = "^(?i)feat\\s*:", group = "Added" },
+    { message = "^(?i)fix\\s*:", group = "Fixed" },
+    { message = "^(?i)docs?\\s*:", group = "Documentation" },
+    { message = "^(?i)perf\\s*:", group = "Performance" },
+    { message = "^(?i)refactor\\s*:", group = "Refactor" },
+    { message = "^(?i)style\\s*:", group = "Style" },
+    { message = "^(?i)test\\s*:", group = "Test" },
+    { message = "^(?i)chore\\s*\\(release\\)\\s*:", skip = true },
+    { message = "^(?i)chore\\s*:", group = "Miscellaneous Tasks" },
+    { body = "(?i)security", group = "Security" },
+]
+commit_preprocessors = []
+conventional_commits = true
+fail_on_unmatched_commit = true
+filter_commits = false
+filter_unconventional = false
+link_parsers = []
+protect_breaking_commits = false
+recurse_submodules = false
+require_conventional = false
+sort_commits = "oldest"
+split_commits = false
+topo_order = false
+topo_order_commits = true
+use_branch_tags = false
