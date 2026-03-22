@@ -14,8 +14,8 @@ fn mecardify_escapes_delimiters() {
     ];
     for (input, expected) in cases {
         assert_eq!(
-            mecardify(input), 
-            expected, 
+            mecardify(input),
+            expected,
             "Delimiter {:?} should be escaped to {:?}", input, expected
         );
     }
@@ -53,8 +53,8 @@ fn mecardify_preserves_nondelimiters() {
     ];
     for (input, expected) in cases {
         assert_eq!(
-            mecardify(input), 
-            expected, 
+            mecardify(input),
+            expected,
             "Non-delimiter {:?} should be preserved as-is", input
         );
     }
@@ -78,7 +78,7 @@ fn ssid_validate_accepts_valid_length() {
     for input in cases {
         let result = Ssid::new(input.clone());
         assert!(
-            result.is_ok(), 
+            result.is_ok(),
             "SSID should be valid for {} bytes: {:?}", input.len(), input
         );
     }
@@ -93,7 +93,7 @@ fn ssid_validate_rejects_excessive_length() {
     for input in cases {
         let result = Ssid::new(input.clone());
         assert!(
-            result.is_err(), 
+            result.is_err(),
             "SSID should be invalid for {} bytes: {:?}", input.len(), input
         );
     }
@@ -180,10 +180,10 @@ fn wifi_to_mecard_matches_expected_structure_with_random_inputs() {
             if is_hidden { "true" } else { "false" }
         );
         assert_eq!(
-            result, 
-            expected, 
-            "MECARD structure mismatch for SSID: {:?}, Pass: {:?}", 
-            raw_ssid, 
+            result,
+            expected,
+            "MECARD structure mismatch for SSID: {:?}, Pass: {:?}",
+            raw_ssid,
             raw_pass
         );
     }
