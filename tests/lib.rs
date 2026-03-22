@@ -63,7 +63,7 @@ fn mecardify_preserves_nondelimiters() {
 #[test]
 fn ssid_validate_rejects_empty_input() {
     let input = "".to_string();
-    let result = Ssid(input).validate();
+    let result = Ssid::new(input);
     assert!(result.is_err(), "Empty SSID should be invalid");
 }
 
@@ -76,7 +76,7 @@ fn ssid_validate_accepts_valid_length() {
         generate_random_mbstring(32, &[DoubleByte, TripleByte, QuadrupleByte]),
     ];
     for input in cases {
-        let result = Ssid(input.clone()).validate();
+        let result = Ssid::new(input.clone());
         assert!(
             result.is_ok(), 
             "SSID should be valid for {} bytes: {:?}", input.len(), input
@@ -91,7 +91,7 @@ fn ssid_validate_rejects_excessive_length() {
         generate_random_mbstring(33, &[TripleByte]),
     ];
     for input in cases {
-        let result = Ssid(input.clone()).validate();
+        let result = Ssid::new(input.clone());
         assert!(
             result.is_err(), 
             "SSID should be invalid for {} bytes: {:?}", input.len(), input
@@ -107,8 +107,8 @@ fn ssid_password_validate_accepts_valid_wpa_passphrase() {
         (Some(generate_random_hex(64)), "64-char Hex"),
     ];
     for (val, msg) in cases {
-        let p = Password { value: val, auth_type: AuthType::Wpa };
-        assert!(p.validate().is_ok(), "WPA should accept {}", msg);
+        let p = Password::new(val, AuthType::Wpa);
+        assert!(p.is_ok(), "WPA should accept {}", msg);
     }
 }
 #[test]
@@ -119,8 +119,8 @@ fn ssid_password_validate_rejects_invalid_wpa_passphrase() {
         (Some(generate_random_mbstring(8, &[TripleByte])), "non-ASCII"),
     ];
     for (val, msg) in cases {
-        let p = Password { value: val, auth_type: AuthType::Wpa };
-        assert!(p.validate().is_err(), "WPA should reject {}", msg);
+        let p = Password::new(val, AuthType::Wpa);
+        assert!(p.is_err(), "WPA should reject {}", msg);
     }
 }
 
@@ -134,8 +134,8 @@ fn ssid_password_validate_accepts_valid_wep_password() {
         (Some(generate_random_hex(26)), "26-char Hex"),
     ];
     for (val, msg) in cases {
-        let p = Password { value: val, auth_type: AuthType::Wep };
-        assert!(p.validate().is_ok(), "WEP should accept {}", msg);
+        let p = Password::new(val, AuthType::Wep);
+        assert!(p.is_ok(), "WEP should accept {}", msg);
     }
 }
 #[test]
@@ -145,20 +145,21 @@ fn ssid_password_validate_rejects_invalid_wep_password() {
         (Some(generate_random_hex(11)), "invalid hex length"),
     ];
     for (val, msg) in cases {
-        let p = Password { value: val, auth_type: AuthType::Wep };
-        assert!(p.validate().is_err(), "WEP should reject {}", msg);
+        let p = Password::new(val, AuthType::Wep);
+        assert!(p.is_err(), "WEP should reject {}", msg);
     }
 }
 
 #[test]
 fn ssid_password_validate_accept_empty_if_authtype_is_nopass() {
-    let p = Password { value: None, auth_type: AuthType::Nopass };
-    assert!(p.validate().is_ok(), "Nopass should accept None");
+    let p = Password::new(None, AuthType::Nopass);
+    assert!(p.is_ok(), "Nopass should accept None");
 }
 #[test]
-fn ssid_password_validate_rejects_anystrings_if_authtype_is_nopass() {
-    let p = Password { value: Some(generate_random_ascii(1)), auth_type: AuthType::Nopass };
-    assert!(p.validate().is_err(), "Nopass should reject any string input");
+fn ssid_password_validate_forces_none_if_authtype_is_nopass() {
+    // Constructor handles forcing None for Nopass, so it should be Ok
+    let p = Password::new(Some("anything".to_string()), AuthType::Nopass);
+    assert!(p.is_ok(), "Nopass constructor should handle and accept provided strings by forcing None");
 }
 
 #[test]
@@ -166,16 +167,11 @@ fn wifi_to_mecard_matches_expected_structure_with_random_inputs() {
     // Check whether the logic for generating the MECARD format matches the description in this test function
     for _ in 0..100 {
         let raw_ssid = generate_random_mbstring(32, &[DoubleByte, TripleByte, QuadrupleByte]);
-        let raw_pass = generate_random_mbstring(16, &[DoubleByte, TripleByte]);
+        let raw_pass = generate_random_ascii(16);
         let is_hidden = rand::thread_rng().gen_bool(0.5);
-        let wifi = Wifi {
-            ssid: Ssid(raw_ssid.clone()),
-            password: Password {
-                value: Some(raw_pass.clone()),
-                auth_type: AuthType::Wpa,
-            },
-            hidden: is_hidden,
-        };
+        let ssid = Ssid::new(raw_ssid.clone()).unwrap();
+        let password = Password::new(Some(raw_pass.clone()), AuthType::Wpa).unwrap();
+        let wifi = Wifi::new(ssid, password, is_hidden);
         let result = wifi.to_mecard();
         let expected = format!(
             "WIFI:S:{};T:WPA;P:{};H:{};;",

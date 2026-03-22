@@ -41,18 +41,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         io::stdin().read_to_string(&mut buffer)?;
         args.ssid = Some(buffer.trim_end_matches(['\n', '\r']).to_string());
     }
-    if args.authentication_type == AuthType::Nopass {
-        args.password = None;
-    }
-    let wifi = Wifi {
-        ssid: Ssid(args.ssid.unwrap_or_default()),
-        password: Password {
-            value: args.password,
-            auth_type: args.authentication_type,
-        },
-        hidden: args.hidden,
-    };
-    wifi.validate()?;
+    let ssid = Ssid::new(args.ssid.unwrap_or_default())?;
+    let password = Password::new(args.password, args.authentication_type)?;
+    let wifi = Wifi::new(ssid, password, args.hidden);
     let mecard = wifi.to_mecard();
     let code = QrCode::new(&mecard)?;
     match args.format {
@@ -67,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let width = code.width() as u32;
             let quiet_zone = 4;
             let total_width = width + (quiet_zone * 2);
-            let scale = 10; 
+            let scale = 10;
             let final_dim = total_width * scale;
             let mut img: ImageBuffer<Luma<u8>, Vec<u8>> = ImageBuffer::new(final_dim, final_dim);
             for pixel in img.pixels_mut() {

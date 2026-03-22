@@ -9,16 +9,22 @@ use clap::ValueEnum;
 /// ```
 /// use qrfi::Ssid;
 ///
-/// let valid_ssid = Ssid("SSID".to_string());
-/// assert!(valid_ssid.validate().is_ok());
+/// let valid_ssid = Ssid::new("SSID".to_string());
+/// assert!(valid_ssid.is_ok());
 ///
-/// let empty_ssid = Ssid("".to_string());
-/// assert!(empty_ssid.validate().is_err());
+/// let empty_ssid = Ssid::new("".to_string());
+/// assert!(empty_ssid.is_err());
 /// ```
-pub struct Ssid(pub String);
+pub struct Ssid(String);
 impl Ssid {
-    /// Validates the SSID by checking its length.
-    pub fn validate(&self) -> Result<(), String> {
+    /// Constructor that validates the SSID.
+    pub fn new(s: String) -> Result<Self, String> {
+        let ssid = Self(s);
+        ssid.validate()?;
+        Ok(ssid)
+    }
+    /// Internal validation logic.
+    fn validate(&self) -> Result<(), String> {
         match self.0.len() {
             0 => Err("SSID cannot be empty.".to_string()),
             1..=32 => Ok(()),
@@ -27,7 +33,6 @@ impl Ssid {
             )),
         }
     }
-    /// Escapes special characters in the SSID for the MECARD-like syntax.
     pub fn escape(&self) -> String {
         mecardify(&self.0)
     }
@@ -40,28 +45,39 @@ impl Ssid {
 /// ```
 /// use qrfi::{Password, AuthType};
 ///
-/// let pass = Password {
-///     value: Some("PASSWORD".to_string()),
-///     auth_type: AuthType::Wpa,
-/// };
-/// assert!(pass.validate().is_ok());
+/// let pass = Password::new(Some("PASSWORD".to_string()), AuthType::Wpa);
+/// assert!(pass.is_ok());
 /// ```
 pub struct Password {
     /// The password value, which can be `None` for open networks (`nopass`).
-    pub value: Option<String>,
+    value: Option<String>,
     /// The authentication type associated with the password.
-    pub auth_type: AuthType,
+    auth_type: AuthType,
 }
 impl Password {
-    /// Validates the password based on the authentication type.
-    pub fn validate(&self) -> Result<(), String> {
+    /// Constructor that enforces business rules:
+    /// If AuthType is Nopass, the password value is forced to None.
+    pub fn new(value: Option<String>, auth_type: AuthType) -> Result<Self, String> {
+        let actual_value = if auth_type == AuthType::Nopass {
+            None
+        } else {
+            value
+        };
+
+        let pass = Self {
+            value: actual_value,
+            auth_type,
+        };
+        pass.validate()?;
+        Ok(pass)
+    }
+
+    fn validate(&self) -> Result<(), String> {
         let p = self.value.as_deref().unwrap_or("");
         let len = p.len();
         let is_hex = !p.is_empty() && p.chars().all(|c| c.is_ascii_hexdigit());
         let is_printable_ascii = !p.is_empty() && p.is_ascii() && p.chars().all(|c| (0x20..=0x7E).contains(&(c as u8)));
-        let unit = if len == 1 { "byte" } else { "bytes" };
-        let kind = if is_hex { "hex" } else { "string" };
-        let current_info = format!("current: {} {} {}", len, unit, kind);
+
         match self.auth_type {
             AuthType::Nopass => {
                 if !p.is_empty() {
@@ -71,29 +87,26 @@ impl Password {
             AuthType::Wpa => {
                 let is_valid_hex = len == 64 && is_hex;
                 let is_valid_ascii = (8..=63).contains(&len) && is_printable_ascii;
-                let char_type = if is_printable_ascii { "ASCII" } else { "non-ASCII" };
                 if !(is_valid_ascii || is_valid_hex) {
-                    return Err(format!(
-                        "WPA passphrase must be 8-63 printable ASCII characters, or 64 hex digits ({}, {}).",
-                        current_info, char_type
-                    ));
+                    return Err("WPA passphrase must be 8-63 printable ASCII characters, or 64 hex digits.".to_string());
                 }
             }
             AuthType::Wep => {
                 let is_valid_hex = (len == 10 || len == 26) && is_hex;
                 if !([5, 13].contains(&len) || is_valid_hex) {
-                    return Err(format!(
-                        "WEP password must be 5 or 13 characters, or 10 or 26 hex digits ({}).",
-                        current_info
-                    ));
+                    return Err("WEP password must be 5 or 13 characters, or 10 or 26 hex digits.".to_string());
                 }
             }
         }
         Ok(())
     }
-    /// Escapes special characters in the password for the MECARD-like syntax.
+
     pub fn escape(&self) -> String {
         mecardify(self.value.as_deref().unwrap_or_default())
+    }
+
+    pub fn auth_type(&self) -> AuthType {
+        self.auth_type
     }
 }
 
@@ -104,38 +117,31 @@ impl Password {
 /// ```
 /// use qrfi::{Wifi, Ssid, Password, AuthType};
 ///
-/// let wifi = Wifi {
-///     ssid: Ssid("SSID".to_string()),
-///     password: Password {
-///         value: Some("PASSWORD".to_string()),
-///         auth_type: AuthType::Wpa,
-///     },
-///     hidden: false,
-/// };
+/// let ssid = Ssid::new("SSID".to_string()).unwrap();
+/// let password = Password::new(Some("PASSWORD".to_string()), AuthType::Wpa).unwrap();
+/// let wifi = Wifi::new(ssid, password, false);
 ///
 /// assert_eq!(wifi.to_mecard(), "WIFI:S:SSID;T:WPA;P:PASSWORD;H:false;;");
 /// ```
 pub struct Wifi {
     /// The SSID (Service Set Identifier) of the Wi-Fi network.
-    pub ssid: Ssid,
+    ssid: Ssid,
     /// The password and its associated authentication method.
-    pub password: Password,
+    password: Password,
     /// Whether the Wi-Fi network's SSID is hidden (not broadcasted).
-    pub hidden: bool,
+    hidden: bool,
 }
 impl Wifi {
-    /// Validates the Wi-Fi configuration by checking both the SSID and password.
-    pub fn validate(&self) -> Result<(), String> {
-        self.ssid.validate()?;
-        self.password.validate()?;
-        Ok(())
+    /// Since Ssid and Password are already validated, Wifi::new is always safe.
+    pub fn new(ssid: Ssid, password: Password, hidden: bool) -> Self {
+        Self { ssid, password, hidden }
     }
-    /// Converts the Wi-Fi configuration into the MECARD-like syntax.
+
     pub fn to_mecard(&self) -> String {
         format!(
             "WIFI:S:{};T:{};P:{};H:{};;",
             self.ssid.escape(),
-            self.password.auth_type,
+            self.password.auth_type(),
             self.password.escape(),
             if self.hidden { "true" } else { "false" }
         )
@@ -150,7 +156,7 @@ impl Wifi {
 ///
 /// ```
 /// use qrfi::mecardify;
-/// 
+///
 /// assert_eq!(mecardify("Example:SSID"), "Example\\:SSID");
 /// assert_eq!(mecardify("A;B,C\\D"), "A\\;B\\,C\\\\D");
 /// ```
