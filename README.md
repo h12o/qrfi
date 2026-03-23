@@ -24,7 +24,14 @@
 
 ## Installation
 
-### From crates.io (Recommended)
+### From Homebrew (macOS or Linux)
+
+```shell
+brew tap h12o/repo
+brew install h12o/repo/qrfi
+```
+
+### From crates.io (Recommended for Rust Users)
 
 ```shell
 cargo install qrfi
