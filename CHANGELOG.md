@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Documentation
+
+- Add Homebrew installation instructions into README
+
+### Fixed
+
+- Improve changelog template spacing in cliff.toml
+
+### Refactor
+
+- Encapsulate structures
+
+### Style
+
+- Trim trailing whitespaces
+- Refine the description to align with Homebrew Formula h12o/repo/qrfi
+
 ## [0.1.0] - 2026-02-25
 
 ### Added
