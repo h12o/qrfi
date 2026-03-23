@@ -18,7 +18,7 @@ enum Format {
 #[command(
     name = "qrfi",
     version,
-    about = "A CLI Wi-Fi QR Code Generator",
+    about = "CLI Wi-Fi QR Code Generator",
     after_help = "\x1b[1;4mExamples:\x1b[0m\n  qrfi SSID -p PASSWORD\n  qrfi SSID -p PASSWORD -f png > qr.png\n  echo SSID | qrfi -p PASSWORD\n\nQR Code is a registered trademark of DENSO WAVE INCORPORATED in Japan and in other countries."
 )]
 struct Args {
