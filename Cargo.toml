@@ -3,6 +3,7 @@ authors = ["h12o+qrfi@blessedgeeks.com"]
 categories = ["command-line-utilities"]
 description = "CLI Wi-Fi QR Code Generator"
 edition = "2024"
+homepage = "https://h12o.blessedgeeks.com/qrfi"
 keywords = ["cli", "qr-code", "utility", "wifi"]
 license = "MIT"
 name = "qrfi"
