@@ -30,6 +30,7 @@ commit_parsers = [
     { message = "^Initial [Cc]ommit$", skip = true },
     { message = "^(?i)feat\\s*:", group = "Added" },
     { message = "^(?i)fix\\s*:", group = "Fixed" },
+    { message = "^(?i)docs?\\s*\\(changelog\\)\\s*:", skip = true },
     { message = "^(?i)docs?\\s*:", group = "Documentation" },
     { message = "^(?i)perf\\s*:", group = "Performance" },
     { message = "^(?i)refactor\\s*:", group = "Refactor" },
