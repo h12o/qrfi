@@ -11,6 +11,11 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Improve changelog template spacing in cliff.toml
+- Ignore changelog maintenance commits in git-cliff
+
+### Miscellaneous Tasks
+
+- Add homepage URL to Cargo.toml
 
 ### Refactor
 
