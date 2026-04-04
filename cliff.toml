@@ -36,7 +36,7 @@ commit_parsers = [
     { message = "^(?i)refactor\\s*:", group = "Refactor" },
     { message = "^(?i)style\\s*:", group = "Style" },
     { message = "^(?i)test\\s*:", group = "Test" },
-    { message = "^(?i)chore\\s*\\(release\\)\\s*:", skip = true },
+    { message = "^(?i)chore\\s*\\(dev|release\\)\\s*:", skip = true },
     { message = "^(?i)chore\\s*:", group = "Miscellaneous Tasks" },
     { body = "(?i)security", group = "Security" },
 ]

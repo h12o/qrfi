@@ -9,7 +9,7 @@ license = "MIT"
 name = "qrfi"
 readme = "README.md"
 repository = "https://github.com/h12o/qrfi"
-version = "0.1.1"
+version = "0.1.2-dev"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
