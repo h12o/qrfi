@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Add homepage URL to help output
+
 ## [0.1.1] - 2026-03-28
 
 ### Documentation
