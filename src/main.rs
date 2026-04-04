@@ -19,7 +19,15 @@ enum Format {
     name = "qrfi",
     version,
     about = "CLI Wi-Fi QR Code Generator",
-    after_help = "\x1b[1;4mExamples:\x1b[0m\n  qrfi SSID -p PASSWORD\n  qrfi SSID -p PASSWORD -f png > qr.png\n  echo SSID | qrfi -p PASSWORD\n\nQR Code is a registered trademark of DENSO WAVE INCORPORATED in Japan and in other countries."
+    after_help = concat!(
+        "\x1b[1;4mExamples:\x1b[0m\n",
+        "  qrfi SSID -p PASSWORD\n",
+        "  qrfi SSID -p PASSWORD -f png > qr.png\n",
+        "  echo SSID | qrfi -p PASSWORD\n\n",
+        "\x1b[1;4mHomepage:\x1b[0m\n",
+        "  ", env!("CARGO_PKG_HOMEPAGE"), "\n\n",
+        "QR Code is a registered trademark of DENSO WAVE INCORPORATED in Japan and in other countries."
+    )
 )]
 struct Args {
     #[arg(help = "SSID of the Wi-Fi network (or via stdin)")]
