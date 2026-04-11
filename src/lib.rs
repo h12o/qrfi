@@ -29,7 +29,8 @@ impl Ssid {
             0 => Err("SSID cannot be empty.".to_string()),
             1..=32 => Ok(()),
             n => Err(format!(
-                "SSID is too long ({} bytes). It must be between 1 and 32 bytes.", n
+                "SSID is too long ({} bytes). It must be between 1 and 32 bytes.",
+                n
             )),
         }
     }
@@ -76,7 +77,8 @@ impl Password {
         let p = self.value.as_deref().unwrap_or("");
         let len = p.len();
         let is_hex = !p.is_empty() && p.chars().all(|c| c.is_ascii_hexdigit());
-        let is_printable_ascii = !p.is_empty() && p.is_ascii() && p.chars().all(|c| (0x20..=0x7E).contains(&(c as u8)));
+        let is_printable_ascii =
+            !p.is_empty() && p.is_ascii() && p.chars().all(|c| (0x20..=0x7E).contains(&(c as u8)));
 
         match self.auth_type {
             AuthType::Nopass => {
@@ -88,13 +90,19 @@ impl Password {
                 let is_valid_hex = len == 64 && is_hex;
                 let is_valid_ascii = (8..=63).contains(&len) && is_printable_ascii;
                 if !(is_valid_ascii || is_valid_hex) {
-                    return Err("WPA passphrase must be 8-63 printable ASCII characters, or 64 hex digits.".to_string());
+                    return Err(
+                        "WPA passphrase must be 8-63 printable ASCII characters, or 64 hex digits."
+                            .to_string(),
+                    );
                 }
             }
             AuthType::Wep => {
                 let is_valid_hex = (len == 10 || len == 26) && is_hex;
                 if !([5, 13].contains(&len) || is_valid_hex) {
-                    return Err("WEP password must be 5 or 13 characters, or 10 or 26 hex digits.".to_string());
+                    return Err(
+                        "WEP password must be 5 or 13 characters, or 10 or 26 hex digits."
+                            .to_string(),
+                    );
                 }
             }
         }
@@ -134,7 +142,11 @@ pub struct Wifi {
 impl Wifi {
     /// Since Ssid and Password are already validated, Wifi::new is always safe.
     pub fn new(ssid: Ssid, password: Password, hidden: bool) -> Self {
-        Self { ssid, password, hidden }
+        Self {
+            ssid,
+            password,
+            hidden,
+        }
     }
 
     pub fn to_mecard(&self) -> String {
@@ -163,7 +175,7 @@ impl Wifi {
 pub fn mecardify(s: &str) -> String {
     let mut mecardified = String::new();
     for c in s.chars() {
-        if matches!(c, ',' | ':' | ';' | '\\' ) {
+        if matches!(c, ',' | ':' | ';' | '\\') {
             mecardified.push('\\');
         }
         mecardified.push(c);

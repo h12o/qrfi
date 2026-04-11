@@ -1,22 +1,19 @@
 mod common;
-use common::generate::*;
 use common::generate::CharType::*;
+use common::generate::*;
 use qrfi::*;
 use rand::Rng;
 
 #[test]
 fn mecardify_escapes_delimiters() {
-    let cases = vec![
-        (",", "\\,"),
-        (":", "\\:"),
-        (";", "\\;"),
-        ("\\", "\\\\"),
-    ];
+    let cases = vec![(",", "\\,"), (":", "\\:"), (";", "\\;"), ("\\", "\\\\")];
     for (input, expected) in cases {
         assert_eq!(
             mecardify(input),
             expected,
-            "Delimiter {:?} should be escaped to {:?}", input, expected
+            "Delimiter {:?} should be escaped to {:?}",
+            input,
+            expected
         );
     }
 }
@@ -55,7 +52,8 @@ fn mecardify_preserves_nondelimiters() {
         assert_eq!(
             mecardify(input),
             expected,
-            "Non-delimiter {:?} should be preserved as-is", input
+            "Non-delimiter {:?} should be preserved as-is",
+            input
         );
     }
 }
@@ -79,7 +77,9 @@ fn ssid_validate_accepts_valid_length() {
         let result = Ssid::new(input.clone());
         assert!(
             result.is_ok(),
-            "SSID should be valid for {} bytes: {:?}", input.len(), input
+            "SSID should be valid for {} bytes: {:?}",
+            input.len(),
+            input
         );
     }
 }
@@ -94,7 +94,9 @@ fn ssid_validate_rejects_excessive_length() {
         let result = Ssid::new(input.clone());
         assert!(
             result.is_err(),
-            "SSID should be invalid for {} bytes: {:?}", input.len(), input
+            "SSID should be invalid for {} bytes: {:?}",
+            input.len(),
+            input
         );
     }
 }
@@ -116,7 +118,10 @@ fn ssid_password_validate_rejects_invalid_wpa_passphrase() {
     let cases = vec![
         (Some(generate_random_ascii(7)), "too short"),
         (Some(generate_random_ascii(65)), "too long"),
-        (Some(generate_random_mbstring(8, &[TripleByte])), "non-ASCII"),
+        (
+            Some(generate_random_mbstring(8, &[TripleByte])),
+            "non-ASCII",
+        ),
     ];
     for (val, msg) in cases {
         let p = Password::new(val, AuthType::Wpa);
@@ -128,7 +133,10 @@ fn ssid_password_validate_rejects_invalid_wpa_passphrase() {
 fn ssid_password_validate_accepts_valid_wep_password() {
     let cases = vec![
         (Some(generate_random_ascii(5)), "5-char ASCII"),
-        (Some(generate_random_mbstring(5, &[TripleByte])), "5-char MB"),
+        (
+            Some(generate_random_mbstring(5, &[TripleByte])),
+            "5-char MB",
+        ),
         (Some(generate_random_hex(10)), "10-char Hex"),
         (Some(generate_random_ascii(13)), "13-char ASCII"),
         (Some(generate_random_hex(26)), "26-char Hex"),
@@ -159,7 +167,10 @@ fn ssid_password_validate_accept_empty_if_authtype_is_nopass() {
 fn ssid_password_validate_forces_none_if_authtype_is_nopass() {
     // Constructor handles forcing None for Nopass, so it should be Ok
     let p = Password::new(Some("anything".to_string()), AuthType::Nopass);
-    assert!(p.is_ok(), "Nopass constructor should handle and accept provided strings by forcing None");
+    assert!(
+        p.is_ok(),
+        "Nopass constructor should handle and accept provided strings by forcing None"
+    );
 }
 
 #[test]
@@ -180,11 +191,9 @@ fn wifi_to_mecard_matches_expected_structure_with_random_inputs() {
             if is_hidden { "true" } else { "false" }
         );
         assert_eq!(
-            result,
-            expected,
+            result, expected,
             "MECARD structure mismatch for SSID: {:?}, Pass: {:?}",
-            raw_ssid,
-            raw_pass
+            raw_ssid, raw_pass
         );
     }
 }

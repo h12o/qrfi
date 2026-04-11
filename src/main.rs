@@ -1,10 +1,10 @@
 use clap::{Parser, ValueEnum};
-use qrcode::render::unicode;
+use image::{ImageBuffer, ImageFormat, Luma};
 use qrcode::QrCode;
-use std::io::{self, Read, Write, Cursor, IsTerminal};
-use image::{Luma, ImageBuffer, ImageFormat};
+use qrcode::render::unicode;
+use std::io::{self, Cursor, IsTerminal, Read, Write};
 
-use qrfi::{Wifi, Ssid, Password, AuthType};
+use qrfi::{AuthType, Password, Ssid, Wifi};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Default)]
 enum Format {
@@ -34,9 +34,18 @@ struct Args {
     ssid: Option<String>,
     #[arg(short = 't', long, value_enum, default_value_t = AuthType::Wpa, help = "Wi-Fi Authentication type")]
     authentication_type: AuthType,
-    #[arg(short = 'p', long, help = "Wi-Fi password (ignored if authentication-type is 'nopass')")]
+    #[arg(
+        short = 'p',
+        long,
+        help = "Wi-Fi password (ignored if authentication-type is 'nopass')"
+    )]
     password: Option<String>,
-    #[arg(short = 'H', long, default_value_t = false, help = "Option to specify when SSID is hidden")]
+    #[arg(
+        short = 'H',
+        long,
+        default_value_t = false,
+        help = "Option to specify when SSID is hidden"
+    )]
     hidden: bool,
     #[arg(short = 'f', long, value_enum, default_value_t = Format::Ascii, help = "Output format")]
     format: Format,
@@ -56,7 +65,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let code = QrCode::new(&mecard)?;
     match args.format {
         Format::Ascii => {
-            let image = code.render::<unicode::Dense1x2>()
+            let image = code
+                .render::<unicode::Dense1x2>()
                 .dark_color(unicode::Dense1x2::Dark)
                 .light_color(unicode::Dense1x2::Light)
                 .build();
@@ -90,7 +100,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             io::stdout().write_all(buf.get_ref())?;
         }
         Format::Svg => {
-            let svg_image = code.render()
+            let svg_image = code
+                .render()
                 .min_dimensions(200, 200)
                 .dark_color(qrcode::render::svg::Color("#000000"))
                 .light_color(qrcode::render::svg::Color("#ffffff"))

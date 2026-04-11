@@ -1,11 +1,16 @@
 mod common;
-use common::generate::*;
 use common::generate::CharType::*;
+use common::generate::*;
 
 use assert_cmd::Command;
 use predicates::prelude::*;
 
-fn run_cli_test<T: AsRef<[u8]>>(args: Vec<String>, stdin: Option<String>, expected_success: bool, expected_output: T) {
+fn run_cli_test<T: AsRef<[u8]>>(
+    args: Vec<String>,
+    stdin: Option<String>,
+    expected_success: bool,
+    expected_output: T,
+) {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_qrfi"));
     cmd.args(&args);
     if let Some(input) = stdin {
@@ -14,14 +19,16 @@ fn run_cli_test<T: AsRef<[u8]>>(args: Vec<String>, stdin: Option<String>, expect
     let assert = cmd.assert();
     if expected_success {
         let pattern = expected_output.as_ref().to_vec();
-        assert.success()
+        assert
+            .success()
             .stdout(predicate::function(move |actual: &[u8]| {
-                actual.windows(pattern.len()).any(|window| window == pattern)
+                actual
+                    .windows(pattern.len())
+                    .any(|window| window == pattern)
             }));
     } else {
         let err_msg = std::str::from_utf8(expected_output.as_ref()).unwrap_or("");
-        assert.failure()
-            .stderr(predicate::str::contains(err_msg));
+        assert.failure().stderr(predicate::str::contains(err_msg));
     }
 }
 

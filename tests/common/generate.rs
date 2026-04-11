@@ -20,9 +20,7 @@ pub fn generate_random_hex(len: usize) -> String {
 pub fn generate_random_ascii(len: usize) -> String {
     let mut rng = rand::thread_rng();
     (0..len)
-        .map(|_| {
-            rng.gen_range(0x20..=0x7E) as u8 as char
-        })
+        .map(|_| rng.gen_range(0x20..=0x7E) as u8 as char)
         .collect()
 }
 
@@ -40,7 +38,12 @@ pub fn generate_random_mbstring(n: usize, types: &[CharType]) -> String {
             TripleByte => triplebyte_chars,
             QuadrupleByte => quadruplebyte_chars,
         };
-        let c = pool.chars().collect::<Vec<char>>().choose(&mut rng).unwrap().to_owned();
+        let c = pool
+            .chars()
+            .collect::<Vec<char>>()
+            .choose(&mut rng)
+            .unwrap()
+            .to_owned();
         let len = c.len_utf8();
         if byte + len <= n {
             chars.push(c);
