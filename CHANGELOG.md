@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Miscellaneous Tasks
+
+- Add .editorconfig
+
+### Style
+
+- Format code with cargo fmt
+
 ## [0.1.2] - 2026-04-05
 
 ### Added
