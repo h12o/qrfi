@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Documentation
+
+- Add contributing guide
+
 ### Miscellaneous Tasks
 
 - Add .editorconfig
