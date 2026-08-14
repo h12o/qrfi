@@ -28,6 +28,7 @@ trim = true
 [git]
 commit_parsers = [
     { message = "^Initial [Cc]ommit$", skip = true },
+    { message = "^Merge pull request #", skip = true },
     { message = "^(?i)feat\\s*:", group = "Added" },
     { message = "^(?i)fix\\s*:", group = "Fixed" },
     { message = "^(?i)docs?\\s*\\(changelog\\)\\s*:", skip = true },
@@ -36,11 +37,13 @@ commit_parsers = [
     { message = "^(?i)refactor\\s*:", group = "Refactor" },
     { message = "^(?i)style\\s*:", group = "Style" },
     { message = "^(?i)test\\s*:", group = "Test" },
-    { message = "^(?i)chore\\s*\\(dev|release\\)\\s*:", skip = true },
+    { message = "^(?i)chore\\s*\\((dev|release)\\)\\s*:", skip = true },
     { message = "^(?i)chore\\s*:", group = "Miscellaneous Tasks" },
     { body = "(?i)security", group = "Security" },
 ]
-commit_preprocessors = []
+commit_preprocessors = [
+    { pattern = "(?s)\\n.*", replace = "" },
+]
 conventional_commits = true
 fail_on_unmatched_commit = true
 filter_commits = false
