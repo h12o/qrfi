@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Add contributing guide
 
+### Fixed
+
+- Correct git-cliff commit_parsers regexp
+
 ### Miscellaneous Tasks
 
 - Add .editorconfig
